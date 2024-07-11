@@ -1,0 +1,471 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.*;
+import java.util.*;
+import java.util.List;
+
+public class HOTBIRDManagementGUI extends JFrame implements ActionListener {
+
+    private static final long serialVersionUID = 1L;
+    private JPanel mainPanel;
+    private JLabel welcomeLabel;
+    private JButton startButton;
+    private JPanel counterPanel;
+    private JLabel counterLabel;
+    private JButton addCustomerButton;
+    private JButton showDataButton;
+    private JButton nextQueueButton;
+    private JPanel counter1Panel;
+    private JLabel counter1Label;
+    private JTextArea counter1QueueArea;
+    private JButton counter1PaymentButton;
+    private JButton counter1ReceiptButton;
+    private JPanel counter2Panel;
+    private JLabel counter2Label;
+    private JTextArea counter2QueueArea;
+    private JButton counter2PaymentButton;
+    private JButton counter2ReceiptButton;
+    private JPanel counter3Panel;
+    private JLabel counter3Label;
+    private JTextArea counter3QueueArea;
+    private JButton counter3PaymentButton;
+    private JButton counter3ReceiptButton;
+    private JButton recordButton;
+    private JPanel recordPanel;
+    private JLabel recordLabel;
+    private JTextArea recordArea;
+
+    private List<CustomerInformation> customerList;
+    private Queue<CustomerInformation> counter1Queue;
+    private Queue<CustomerInformation> counter2Queue;
+    private Queue<CustomerInformation> counter3Queue;
+    private Stack<CustomerInformation> completeStack;
+
+    private int counter1Count = 0;
+    private int counter2Count = 0;
+    private int counter3Count = 0;
+
+    private JLabel logoLabel;
+
+    public HOTBIRDManagementGUI() {
+        super("HOTBIRD Management System");
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setSize(900, 400);
+        setLayout(new BorderLayout());
+
+        customerList = new ArrayList<>();
+        counter1Queue = new LinkedList<>();
+        counter2Queue = new LinkedList<>();
+        counter3Queue = new LinkedList<>();
+        completeStack = new Stack<>();
+
+        // Welcome Panel
+        mainPanel = new JPanel();
+        mainPanel.setLayout(new FlowLayout());
+        welcomeLabel = new JLabel("Welcome to Restaurant Management System");
+        startButton = new JButton("Start");
+        startButton.addActionListener(this);
+        startButton.setSize(10, 10);
+        logoLabel = new JLabel();
+        logoLabel.setIcon(new ImageIcon("HOTBIRD LOGO.png")); // Replace with your logo path
+        logoLabel.setSize(400, 400);
+        mainPanel.add(logoLabel);
+        mainPanel.add(welcomeLabel);
+        mainPanel.add(startButton);
+        add(mainPanel, BorderLayout.NORTH);
+
+        // Counter Panel
+        counterPanel = new JPanel();
+        counterPanel.setLayout(new GridLayout(2, 4, 1, 5));
+        counterPanel.setVisible(false);
+
+        counterLabel = new JLabel("Counters:");
+        addCustomerButton = new JButton("Add Customer");
+        addCustomerButton.setPreferredSize(new Dimension(30, 30));
+        addCustomerButton.addActionListener(this);
+
+        showDataButton = new JButton("Show Data");
+        showDataButton.addActionListener(this);
+        addCustomerButton.setPreferredSize(new Dimension(30, 30));
+
+        nextQueueButton = new JButton("Next Queue");
+        nextQueueButton.addActionListener(this);
+        addCustomerButton.setPreferredSize(new Dimension(30, 30));
+
+        counterPanel.add(counterLabel);
+        counterPanel.add(addCustomerButton);
+        counterPanel.add(showDataButton);
+        counterPanel.add(nextQueueButton);
+
+        // Set button colors
+        setButtonColors(startButton, Color.BLUE, Color.WHITE);
+        setButtonColors(addCustomerButton, Color.GREEN, Color.BLACK);
+        setButtonColors(showDataButton, Color.YELLOW, Color.BLACK);
+        setButtonColors(nextQueueButton, Color.ORANGE, Color.BLACK);
+
+        // Counter 1 Panel
+        counter1Panel = new JPanel(new BorderLayout());
+        counter1Label = new JLabel("Counter 1");
+        counter1QueueArea = new JTextArea();
+        counter1QueueArea.setEditable(false);
+        counter1PaymentButton = new JButton("Payment");
+        counter1PaymentButton.addActionListener(this);
+        counter1ReceiptButton = new JButton("Receipt");
+        counter1ReceiptButton.addActionListener(this);
+
+        counter1Panel.add(counter1Label, BorderLayout.NORTH);
+        counter1Panel.add(new JScrollPane(counter1QueueArea), BorderLayout.CENTER);
+        JPanel counter1ButtonPanel = new JPanel(new GridLayout(1, 2));
+        counter1ButtonPanel.add(counter1PaymentButton);
+        counter1ButtonPanel.add(counter1ReceiptButton);
+        counter1Panel.add(counter1ButtonPanel, BorderLayout.SOUTH);
+        counterPanel.add(counter1Panel);
+
+        // Set button colors for counter 1
+        setButtonColors(counter1PaymentButton, Color.RED, Color.WHITE);
+        setButtonColors(counter1ReceiptButton, Color.CYAN, Color.BLACK);
+
+        // Counter 2 Panel
+        counter2Panel = new JPanel(new BorderLayout());
+        counter2Label = new JLabel("Counter 2");
+        counter2QueueArea = new JTextArea();
+        counter2QueueArea.setEditable(false);
+        counter2PaymentButton = new JButton("Payment");
+        counter2PaymentButton.addActionListener(this);
+        counter2ReceiptButton = new JButton("Receipt");
+        counter2ReceiptButton.addActionListener(this);
+
+        counter2Panel.add(counter2Label, BorderLayout.NORTH);
+        counter2Panel.add(new JScrollPane(counter2QueueArea), BorderLayout.CENTER);
+        JPanel counter2ButtonPanel = new JPanel(new GridLayout(1, 2));
+        counter2ButtonPanel.add(counter2PaymentButton);
+        counter2ButtonPanel.add(counter2ReceiptButton);
+        counter2Panel.add(counter2ButtonPanel, BorderLayout.SOUTH);
+        counterPanel.add(counter2Panel);
+
+        // Set button colors for counter 2
+        setButtonColors(counter2PaymentButton, Color.RED, Color.WHITE);
+        setButtonColors(counter2ReceiptButton, Color.CYAN, Color.BLACK);
+
+        // Counter 3 Panel
+        counter3Panel = new JPanel(new BorderLayout());
+        counter3Label = new JLabel("Counter 3");
+        counter3QueueArea = new JTextArea();
+        counter3QueueArea.setEditable(false);
+        counter3PaymentButton = new JButton("Payment");
+        counter3PaymentButton.addActionListener(this);
+        counter3ReceiptButton = new JButton("Receipt");
+        counter3ReceiptButton.addActionListener(this);
+
+        counter3Panel.add(counter3Label, BorderLayout.NORTH);
+        counter3Panel.add(new JScrollPane(counter3QueueArea), BorderLayout.CENTER);
+        JPanel counter3ButtonPanel = new JPanel(new GridLayout(1, 2));
+        counter3ButtonPanel.add(counter3PaymentButton);
+        counter3ButtonPanel.add(counter3ReceiptButton);
+        counter3Panel.add(counter3ButtonPanel, BorderLayout.SOUTH);
+        counterPanel.add(counter3Panel);
+
+        // Set button colors for counter 3
+        setButtonColors(counter3PaymentButton, Color.RED, Color.WHITE);
+        setButtonColors(counter3ReceiptButton, Color.CYAN, Color.BLACK);
+
+        // Record Panel
+        recordPanel = new JPanel(new BorderLayout());
+        recordPanel.setVisible(false);
+        recordLabel = new JLabel("Record");
+        recordArea = new JTextArea();
+        recordArea.setEditable(false);
+        recordButton = new JButton("Record");
+        recordButton.addActionListener(this);
+
+        recordPanel.add(recordLabel, BorderLayout.NORTH);
+        recordPanel.add(new JScrollPane(recordArea), BorderLayout.CENTER);
+        recordPanel.add(recordButton, BorderLayout.SOUTH);
+        add(recordPanel, BorderLayout.SOUTH);
+
+        add(counterPanel, BorderLayout.CENTER);
+        setVisible(true);
+    }
+
+    private void setButtonColors(JButton button, Color background, Color foreground) {
+        button.setBackground(background);
+        button.setForeground(foreground);
+    }
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        if (e.getSource() == startButton) {
+            mainPanel.setVisible(false);
+            counterPanel.setVisible(true);
+            readCustomerData();
+        } else if (e.getSource() == addCustomerButton) {
+            addCustomer();
+        } else if (e.getSource() == showDataButton) {
+            showCustomerData();
+        } else if (e.getSource() == nextQueueButton) {
+            processOrders();
+        } else if (e.getSource() == counter1PaymentButton) {
+            processCounterPayment(counter1Queue, counter1QueueArea, 1);
+        } else if (e.getSource() == counter1ReceiptButton) {
+            displayCounterReceipt(counter1Queue, 1);
+        } else if (e.getSource() == counter2PaymentButton) {
+            processCounterPayment(counter2Queue, counter2QueueArea, 2);
+        } else if (e.getSource() == counter2ReceiptButton) {
+            displayCounterReceipt(counter2Queue, 2);
+        } else if (e.getSource() == counter3PaymentButton) {
+            processCounterPayment(counter3Queue, counter3QueueArea, 3);
+        } else if (e.getSource() == counter3ReceiptButton) {
+            displayCounterReceipt(counter3Queue, 3);
+        } else if (e.getSource() == recordButton) {
+            displayCompleteTransactions();
+        }
+    }
+
+    private void readCustomerData() {
+        try (BufferedReader reader = new BufferedReader(new FileReader("customerList.txt"))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] parts = line.split(";");
+                int custId = Integer.parseInt(parts[0]);
+                String custName = parts[1];
+                int tableNumber = Integer.parseInt(parts[2]);
+                CustomerInformation customer = new CustomerInformation(custId, custName, tableNumber);
+
+                int orderId = Integer.parseInt(parts[3]);
+                String itemName = parts[4];
+                double itemPrice = Double.parseDouble(parts[5]);
+                int quantity = Integer.parseInt(parts[6]);
+                OrderInformation order = new OrderInformation(orderId, itemName, itemPrice, quantity);
+                customer.addOrder(order);
+
+                customerList.add(customer);
+            }
+        } catch (IOException e) {
+            System.err.println("Error reading customer data: " + e.getMessage());
+        }
+    }
+
+    private void addCustomer() {
+        String custName = JOptionPane.showInputDialog(this, "Enter Customer Name:");
+        if (custName != null && !custName.isEmpty()) {
+            int tableNumber = Integer.parseInt(JOptionPane.showInputDialog(this, "Enter Table Number:"));
+            CustomerInformation customer = new CustomerInformation(customerList.size() + 1, custName, tableNumber);
+
+            // Add orders for the customer (you can modify this part)
+            customer.addOrder(new OrderInformation(1, "Pizza", 15.99, 2));
+            customer.addOrder(new OrderInformation(2, "Pasta", 12.99, 1));
+            customer.addOrder(new OrderInformation(3, "Salad", 8.99, 1));
+
+            customerList.add(customer);
+            JOptionPane.showMessageDialog(this, "Customer added successfully!");
+        }
+    }
+
+    private void showCustomerData() {
+        StringBuilder sb = new StringBuilder();
+        for (CustomerInformation customer : customerList) {
+            sb.append("Customer ID: ").append(customer.getCustId()).append("\n");
+            sb.append("Customer Name: ").append(customer.getCustName()).append("\n");
+            sb.append("Table Number: ").append(customer.getTableNumber()).append("\n");
+            for (OrderInformation order : customer.getOrders()) {
+                sb.append("Order ID: ").append(order.getOrderId()).append(", Item: ").append(order.getItemName()).append(", Quantity: ").append(order.getQuantity()).append(", Total Price: ").append(order.getTotalPrice()).append("\n");
+            }
+            sb.append("--------------------\n");
+        }
+        JOptionPane.showMessageDialog(this, sb.toString());
+    }
+
+    private void processOrders() {
+        if (customerList.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "No customers in the list!");
+            return;
+        }
+
+        CustomerInformation customer = customerList.remove(0);
+        int counterNumber = getAvailableCounter(customer);
+        if (counterNumber == 1) {
+            counter1Queue.add(customer);
+            counter1QueueArea.setText(getQueueText(counter1Queue));
+            if (counter1Queue.size() == 5) {
+                counter1Count = 0;
+            }
+        } else if (counterNumber == 2) {
+            counter2Queue.add(customer);
+            counter2QueueArea.setText(getQueueText(counter2Queue));
+            if (counter2Queue.size() == 5) {
+                counter2Count = 0;
+            }
+        } else if (counterNumber == 3) {
+            counter3Queue.add(customer);
+            counter3QueueArea.setText(getQueueText(counter3Queue));
+            if (counter3Queue.size() == 5) {
+                counter3Count = 0;
+            }
+        }
+    }
+
+    private int getAvailableCounter(CustomerInformation customer) {
+        int totalQuantity = 0;
+        for (OrderInformation order : customer.getOrders()) {
+            totalQuantity += order.getQuantity();
+        }
+
+        if (totalQuantity <= 5) {
+            if (counter1Count < 5) {
+                counter1Count++;
+                return 1;
+            } else if (counter2Count < 5) {
+                counter2Count++;
+                return 2;
+            } else {
+                counter3Count++;
+                return 3;
+            }
+        } else {
+            counter3Count++;
+            return 3;
+        }
+    }
+
+    private String getQueueText(Queue<CustomerInformation> queue) {
+        StringBuilder sb = new StringBuilder();
+        for (CustomerInformation customer : queue) {
+            sb.append("Customer ID: ").append(customer.getCustId()).append(", Name: ").append(customer.getCustName()).append(", Table Number: ").append(customer.getTableNumber()).append("\n");
+        }
+        return sb.toString();
+    }
+
+    private void processCounterPayment(Queue<CustomerInformation> queue, JTextArea queueArea, int counterNumber) {
+        if (queue.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "No customers in the queue!");
+            return;
+        }
+
+        CustomerInformation customer = queue.poll();
+        completeStack.push(customer);
+        queueArea.setText(getQueueText(queue));
+        JOptionPane.showMessageDialog(this, "Customer " + customer.getCustId() + " has been served at Counter " + counterNumber + "!");
+    }
+
+    private void displayCounterReceipt(Queue<CustomerInformation> queue, int counterNumber) {
+        if (queue.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "No customers in the queue!");
+            return;
+        }
+
+        CustomerInformation customer = queue.peek();
+        StringBuilder sb = new StringBuilder();
+        sb.append("Receipt for Customer ").append(customer.getCustId()).append(" at Counter ").append(counterNumber).append(":\n");
+        for (OrderInformation order : customer.getOrders()) {
+            sb.append("Order ID: ").append(order.getOrderId()).append(", Item: ").append(order.getItemName()).append(", Quantity: ").append(order.getQuantity()).append(", Total Price: ").append(order.getTotalPrice()).append("\n");
+        }
+        sb.append("Total Price: ").append(customer.getTotalPrice()).append("\n");
+        JOptionPane.showMessageDialog(this, sb.toString());
+    }
+
+    private void displayCompleteTransactions() {
+        StringBuilder sb = new StringBuilder();
+        while (!completeStack.isEmpty()) {
+            CustomerInformation customer = completeStack.pop();
+            sb.append("Customer ID: ").append(customer.getCustId()).append(", Name: ").append(customer.getCustName()).append(", Table Number: ").append(customer.getTableNumber()).append("\n");
+            for (OrderInformation order : customer.getOrders()) {
+                sb.append("Order ID: ").append(order.getOrderId()).append(", Item: ").append(order.getItemName()).append(", Quantity: ").append(order.getQuantity()).append(", Total Price: ").append(order.getTotalPrice()).append("\n");
+            }
+            sb.append("Total Price: ").append(customer.getTotalPrice()).append("\n");
+            sb.append("--------------------\n");
+        }
+        recordArea.setText(sb.toString());
+        recordPanel.setVisible(true);
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                HOTBIRDManagementGUI gui = new HOTBIRDManagementGUI();
+                while (gui.customerList.size() < 100) {
+                    gui.readCustomerData();
+                }
+                gui.processOrders(); // Call processOrders once to start the queue
+            }
+        });
+    }
+}
+
+import java.util.List;
+import java.util.*;
+class CustomerInformation {
+    private int custId;
+    private String custName;
+    private int tableNumber;
+    private List<OrderInformation> orders;
+
+    public CustomerInformation(int custId, String custName, int tableNumber) {
+        this.custId = custId;
+        this.custName = custName;
+        this.tableNumber = tableNumber;
+        this.orders = new ArrayList<>();
+    }
+
+    public int getCustId() {
+        return custId;
+    }
+
+    public String getCustName() {
+        return custName;
+    }
+
+    public int getTableNumber() {
+        return tableNumber;
+    }
+
+    public List<OrderInformation> getOrders() {
+        return orders;
+    }
+
+    public void addOrder(OrderInformation order) {
+        orders.add(order);
+    }
+
+    public double getTotalPrice() {
+        double totalPrice = 0;
+        for (OrderInformation order : orders) {
+            totalPrice += order.getTotalPrice();
+        }
+        return totalPrice;
+    }
+}
+
+class OrderInformation {
+    private int orderId;
+    private String itemName;
+    private double itemPrice;
+    private int quantity;
+
+    public OrderInformation(int orderId, String itemName, double itemPrice, int quantity) {
+        this.orderId = orderId;
+        this.itemName = itemName;
+        this.itemPrice = itemPrice;
+        this.quantity = quantity;
+    }
+
+    public int getOrderId() {
+        return orderId;
+    }
+
+    public String getItemName() {
+        return itemName;
+    }
+
+    public double getItemPrice() {
+        return itemPrice;
+    }
+
+    public int getQuantity() {
+        return quantity;
+    }
+
+    public double getTotalPrice() {
+        return itemPrice * quantity;
+    }
+}
